@@ -5,6 +5,8 @@ import {
 import { Provider } from 'react-redux';
 import store from './src/store';
 
+console.disableYellowBox = true;
+GLOBAL.XMLHttpRequest = GLOBAL.originalXMLHttpRequest || GLOBAL.XMLHttpRequest
 export default class App extends Component {
   render() {
     return (

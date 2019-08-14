@@ -1,20 +1,31 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import { StyleSheet, Text, View, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import {createMaterialTopTabNavigator, createAppContainer} from 'react-navigation';
-import PopularTab from './PopularTab'
+// import PopularTab from './PopularTab';
+import Toast from 'react-native-easy-toast'
+import { connect } from 'react-redux';
+import actionCreators from '../action/index';
+import PopularItem from '../common/PopularItem';
+
+
+const URL = 'https://api.github.com/search/repositories?q=';
+const QUERY_STR = '&sort=stars';
+const THEME_COLOR = 'red';
 
 type Props = {};
 export default class App extends Component<Props> {
   constructor(props) {
     super(props);
     this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
+    // this.tabNames = ['Java'];
   }
 
+  // 顶部栏导航动态生成
   _generTab() {
     let tabs = {};
     this.tabNames.forEach((item, index) => {
       tabs[`tab${index}`] = {
-        screen: props => <PopularTab {...props} tabLable={item} />,
+        screen: props => <PopularTabPage {...props} tabLable={item} />,
         navigationOptions: {
           title: item,
         },
@@ -22,6 +33,7 @@ export default class App extends Component<Props> {
     });
     return tabs;
   }
+
   render() {
     const MatetialTab = createAppContainer(createMaterialTopTabNavigator(this._generTab(), {
       tabBarOptions: {
@@ -38,17 +50,147 @@ export default class App extends Component<Props> {
     }))
     
     return (
-      <View style={styles.container}>
+      <View style={styles.containerWrapper}>
         <MatetialTab />
       </View>
     );
   }
 }
 
+const PAGE_SIZE = 10; // 设为常量，防止修改
+
+class PopularTab extends Component {
+  constructor(props) {
+    super(props);
+    const { tabLable } = this.props;
+    this.storeName = tabLable;
+  }
+
+  componentDidMount() {
+    this.loadData(false);
+  }
+
+  // 数据容错处理
+  _store() {
+    const { popular } = this.props;
+    let store = popular[this.storeName];
+    if (!store) {
+      return store = {
+        items: [],
+        isLoading: false
+      };
+    }
+    return store;
+  }
+
+  // 渲染分割线
+  _separator() {
+    return <View style={{height: 1, backgroundColor: 'red'}} />
+  }
+
+  // 渲染列表item
+  _renderItem(data) {
+    const item = data.item;
+    
+    return <PopularItem item={item}/>
+  }
+
+  // 渲染底部组件
+  _genIndicator() {
+    console.log(this._store())
+    return this._store().hideLoadingMore ? null : (
+      <View style={styles.footerContainer}>
+        <ActivityIndicator style={styles.indicatorStyle} />
+        <Text>正在加载更多</Text>
+      </View>
+    )
+
+  }
+  // 加载数据
+  loadData(loadMore) {
+    
+    const { onRefreshPopular, onLoadMorePopular } = this.props;
+    const url = this.getFetchUrl(this.storeName);
+    const store = this._store();
+    if (loadMore) {    
+      console.log('--onLoadMorePopular--');
+      onLoadMorePopular(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, () => {
+        this.refs.toast.show('没有更多了');
+      })
+    } else {
+      console.log('--onRefreshPopular--');
+      
+      onRefreshPopular(this.storeName, url, PAGE_SIZE);
+    }
+  }
+
+  // 拼接最热模块数据URL 
+  getFetchUrl(key) {
+    return URL + key + QUERY_STR;
+  }
+
+  render() {
+    const {tabLable} = this.props;
+    const store = this._store();
+    
+    return (
+      <View style={styles.container}>
+        <FlatList 
+          style={{flex: 1}}
+          data={store.projectModels}
+          renderItem={data => this._renderItem(data)}
+          keyExtractor={item => "" + item.id}
+          refreshControl={
+            <RefreshControl 
+              title={'Loading'}
+              titleColor={THEME_COLOR}
+              colors={[THEME_COLOR]}
+              refreshing={store.isLoading}
+              onRefresh={() => {
+                this.loadData(false);
+              }}
+              tintColor={THEME_COLOR}
+              ItemSeparatorComponent={this._separator()}
+            />
+          }
+          ListFooterComponent={() => this._genIndicator()}
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            console.log('--onEndReached--');
+            
+            this.loadData(true);
+          }}
+        />
+        <Toast ref={'toast'} position={'center'} />
+      </View>
+    )
+  }
+}
+
+const mapStateToProps = (state) => ({
+  popular: state.popular
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  // 加载列表数据
+  onRefreshPopular(storeName, url, pageSize) {
+    dispatch(actionCreators.onRefreshPopular(storeName, url, pageSize))
+  },
+  // 加载更多数据
+  onLoadMorePopular(storeName, pageIndex, pageSize, items, callback) {
+    dispatch(actionCreators.onLoadMorePopular(storeName, pageIndex, pageSize, items, callback))
+  }
+});
+
+const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);
+
 const styles = StyleSheet.create({
-  container: {
+  containerWrapper: {
     flex: 1,
     marginTop: 30
+  },
+  container: {
+    flex: 1,
   },
   welcome: {
     fontSize: 20,
@@ -66,7 +208,10 @@ const styles = StyleSheet.create({
   tabsStyle: {
     backgroundColor: '#678'
   },
+  footerContainer: {
+    alignItems: "center"
+  },
   labelStyle: {
-
+    
   }
 })

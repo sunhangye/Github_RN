@@ -11,6 +11,9 @@ import { connect } from 'react-redux';
 import WelcomePage from '../page/Welcome';
 import HomePage from '../page/Home';
 import DetailPage from '../page/Detail';
+import FetchDemoPage from '../page/FetchDemo';
+import AsyncStorageDemoPage from '../page/AsyncStorageDemo';
+import DataStorageDemoPage from '../page/DataStorageDemo';
 
 export const rootCom = 'Init'; // 设置根路由
 
@@ -36,6 +39,25 @@ const MainNavigator = createStackNavigator({
       header: null,
     }
   },
+  FetchDemoPage: {
+    screen: FetchDemoPage,
+    navigationOptions: {
+      header: null,
+    }
+  }, 
+  AsyncStorageDemoPage: {
+    screen: AsyncStorageDemoPage,
+    navigationOptions: {
+      header: null,
+    }
+  },
+  DataStorageDemoPage: {
+    screen: DataStorageDemoPage,
+    navigationOptions: {
+      header: null,
+    }
+  },
+  
 }, {
   defaultNavigationOptions: {
     header: null,

@@ -7,7 +7,6 @@ export default class PopularTab extends Component < Props > {
   
   render() {
     const {tabLable} = this.props;
-    console.log(this.props);
     
     return (
       <View style={styles.container}>
@@ -16,6 +15,23 @@ export default class PopularTab extends Component < Props > {
           title="跳转到详情页"
           onPress={() => NavigationUtil.goPage({}, 'DetailPage')}
         />
+        <Button 
+          title = "跳转到FetchDemoPage"
+          onPress={() => NavigationUtil.goPage({}, 'FetchDemoPage')}
+        />
+        <Button 
+          title = "跳转到AsyncStorageDemoPage"
+          onPress = {
+            () => NavigationUtil.goPage({}, 'AsyncStorageDemoPage')
+          }
+        />
+        <Button 
+          title = "跳转到DataStorageDemoPage"
+          onPress = {
+            () => NavigationUtil.goPage({}, 'DataStorageDemoPage')
+          }
+        />
+        
       </View>
     );
   }

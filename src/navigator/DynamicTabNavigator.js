@@ -9,6 +9,7 @@ import FavoritePage from '../page/Favorite';
 import MyPage from '../page/My';
 import PopularPage from '../page/Popular';
 import {BottomTabBar} from 'react-navigation-tabs';
+import { connect } from 'react-redux';
 
 const TABS = { // 配置页面路由
   PopularPage: {
@@ -63,24 +64,29 @@ const TABS = { // 配置页面路由
       )
     }
   },
-}
+};
 
-export default class DynamicTabNavigator extends Component {
+class DynamicTabNavigator extends Component {
   constructor(props) {
-    super(props)
+    super(props);
   }
   componentDidMount() {
     
   }
   _tabNavigator() {
+    if (this.tabs) { // 有则返回之前原有的
+      return this.tabs;
+    }
     // 将配置文件导出
     const { PopularPage, TrendingPage, FavoritePage, MyPage } = TABS;
     // 配置需要的路由文件
     const tabs = { PopularPage, TrendingPage, FavoritePage, MyPage };
     // 动态设置底部标题
     PopularPage.navigationOptions.tabBarLabel = '哈哈'; // 动态配置label
-    return createAppContainer(createBottomTabNavigator(tabs, {
-       tabBarComponent: TabBarComponent
+    return this.tabs = createAppContainer(createBottomTabNavigator(tabs, {
+       tabBarComponent: (props) => (
+         <TabBarComponent theme={this.props.theme} {...props} />
+       )
     }))
 
   }
@@ -101,22 +107,19 @@ class TabBarComponent extends Component {
     }
   }
   render() {
-    // 取出路由和索引
-    const {routes, index} = this.props.navigation.state;
-    // 判断是否有params
-    if (routes[index].params) {
-      const {theme} = routes[index].params;
-      // 当前时间大于之前时间，更新主题
-      if (theme && theme.updateTime > this.theme.updateTime) {
-        this.theme = theme;
-      }
-    }
+    const {theme} = this.props;
     // 渲染底部栏
     return ( 
       <BottomTabBar 
         {...this.props}
-        activeTintColor={this.theme.tintColor || this.props.activeTintColor}
+        activeTintColor={theme}
       />
     )
   }
 }
+
+const mapStateToProps = (state) => ({
+  theme: state.theme.theme
+});
+
+export default connect(mapStateToProps, null)(DynamicTabNavigator);

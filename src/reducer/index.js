@@ -1,7 +1,6 @@
-import {
-  combineReducers
-} from 'redux';
-
+import { combineReducers } from 'redux';
+import themeReducer from './theme';
+import popularReducer from './popular';
 import {
   rootCom,
   RootNavigator
@@ -20,6 +19,8 @@ const navReducer = (state=navState, action) => {
 
 const reducer = combineReducers({
   'nav': navReducer,
+  'theme': themeReducer,
+  'popular': popularReducer
 
 })
 
