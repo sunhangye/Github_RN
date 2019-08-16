@@ -82,7 +82,7 @@ class DynamicTabNavigator extends Component {
     // 配置需要的路由文件
     const tabs = { PopularPage, TrendingPage, FavoritePage, MyPage };
     // 动态设置底部标题
-    PopularPage.navigationOptions.tabBarLabel = '哈哈'; // 动态配置label
+    PopularPage.navigationOptions.tabBarLabel = '流行'; // 动态配置label
     return this.tabs = createAppContainer(createBottomTabNavigator(tabs, {
        tabBarComponent: (props) => (
          <TabBarComponent theme={this.props.theme} {...props} />

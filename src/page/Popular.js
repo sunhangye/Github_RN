@@ -16,8 +16,8 @@ type Props = {};
 export default class App extends Component<Props> {
   constructor(props) {
     super(props);
-    this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
-    // this.tabNames = ['Java'];
+    // this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
+    this.tabNames = ['Java'];
   }
 
   // 顶部栏导航动态生成
@@ -70,14 +70,18 @@ class PopularTab extends Component {
     this.loadData(false);
   }
 
-  // 数据容错处理
+  /**
+   * 数据容错处理,获取与当前页面有关的数据
+   */
   _store() {
     const { popular } = this.props;
     let store = popular[this.storeName];
-    if (!store) {
+    if (!store) { // 初始化数据
       return store = {
         items: [],
-        isLoading: false
+        isLoading: false,
+        projectModels: [],
+        hideLoadingMore: true
       };
     }
     return store;
@@ -91,13 +95,11 @@ class PopularTab extends Component {
   // 渲染列表item
   _renderItem(data) {
     const item = data.item;
-    
     return <PopularItem item={item}/>
   }
 
   // 渲染底部组件
   _genIndicator() {
-    console.log(this._store())
     return this._store().hideLoadingMore ? null : (
       <View style={styles.footerContainer}>
         <ActivityIndicator style={styles.indicatorStyle} />
@@ -107,19 +109,20 @@ class PopularTab extends Component {
 
   }
   // 加载数据
+  /**
+   * 
+   * @param {Boolean} loadMore true: 下拉加载更多；false: 首次加载
+   */
   loadData(loadMore) {
-    
     const { onRefreshPopular, onLoadMorePopular } = this.props;
     const url = this.getFetchUrl(this.storeName);
     const store = this._store();
-    if (loadMore) {    
+    if (loadMore) { // 下拉加载更多 
       console.log('--onLoadMorePopular--');
       onLoadMorePopular(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, () => {
         this.refs.toast.show('没有更多了');
       })
-    } else {
-      console.log('--onRefreshPopular--');
-      
+    } else { // 首次加载
       onRefreshPopular(this.storeName, url, PAGE_SIZE);
     }
   }
@@ -146,7 +149,7 @@ class PopularTab extends Component {
               titleColor={THEME_COLOR}
               colors={[THEME_COLOR]}
               refreshing={store.isLoading}
-              onRefresh={() => {
+              onRefresh={() => { // 上拉加载
                 this.loadData(false);
               }}
               tintColor={THEME_COLOR}
@@ -155,10 +158,19 @@ class PopularTab extends Component {
           }
           ListFooterComponent={() => this._genIndicator()}
           onEndReachedThreshold={0.5}
-          onEndReached={() => {
-            console.log('--onEndReached--');
+          onEndReached={() => { // 下拉刷新
+            setTimeout(() => { // 确保onMomentumScrollBegin执行
+              console.log('--onEndReached--');
+              if (this.canLoadMore) {
+                this.loadData(true);
+                this.canLoadMore = false;
+              }
+            }, 100) 
+          }}
+          onMomentumScrollBegin={() => {
+            this.canLoadMore = true;
+            console.log('--onMomentumScrollBegin--');
             
-            this.loadData(true);
           }}
         />
         <Toast ref={'toast'} position={'center'} />

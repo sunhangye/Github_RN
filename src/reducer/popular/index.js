@@ -60,7 +60,7 @@ export default (state = defaultState, action) => {
       }
     case actionTypes.POPULAR_LOAD_MORE_FAIL: // 上拉加载更多失败
       return {
-        ...state, // Object.assign
+        ...state, // ES7验证操作符 Object.assign
         [action.storeName]: {
           ...state[action.storeName],
           hideLoadingMore: true,

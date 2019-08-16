@@ -11,16 +11,7 @@ const refreshPopularAction = (storeName) => ({
   storeName
 });
 
-/**
- * 刷新popular数据成功action 暂不使用
- * @param {*} storeName 
- * @param {*} data 
- */
-const handleDataAction = (storeName, data) => ({
-  type: actionTypes.POPULAR_REFRESH_SUCCESS,
-  items: data && data.data && data.data.items,
-  storeName
-});
+
 
 /**
  * 加载第一页列表数据
@@ -34,7 +25,6 @@ const handleData = (dispatch, storeName, pageSize, data) => {
   if (data && data.data && data.data.items) {
     fixItems = data.data.items;
   }
-  console.log('看看进来了吗');
   
   dispatch({
     type: actionTypes.POPULAR_REFRESH_SUCCESS,
@@ -72,7 +62,7 @@ export const onRefreshPopular = (storeName, url, pageSize) => {
     dataStore.fetchData(url, FLAG_STORAGE.flag_popular)
       .then((data) => {
         // 派送请求成功数据
-        console.log('派送请求成功数据');
+        console.log('首次请求成功数据');
         
         handleData(dispatch, storeName, pageSize, data);
         // dispatch(handleDataAction(storeName, data));
@@ -97,6 +87,7 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray=[], 
   return (dispatch) => {
     // 模拟网络请求
     setTimeout(() => {
+      // 判断上次请求到的数据是否已经大于等于总数据
       if ((pageIndex-1) * pageSize >= dataArray.length) {
         if (typeof callback === 'function') {
           callback('no more data');
@@ -104,7 +95,7 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray=[], 
         dispatch({
           type: actionTypes.POPULAR_LOAD_MORE_FAIL,
           storeName,
-          pageIndex: --pageIndex,
+          pageIndex: --pageIndex, // 总页数
           projectModels: dataArray
         })
       } else {
