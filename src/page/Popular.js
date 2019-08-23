@@ -6,13 +6,14 @@ import Toast from 'react-native-easy-toast'
 import { connect } from 'react-redux';
 import actionCreators from '../action/index';
 import PopularItem from '../common/PopularItem';
-
+import NavigationBar from '../common/NavigationBar';
 
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
-const THEME_COLOR = 'red';
+const THEME_COLOR = '#678';
 
 type Props = {};
+
 export default class App extends Component<Props> {
   constructor(props) {
     super(props);
@@ -35,6 +36,17 @@ export default class App extends Component<Props> {
   }
 
   render() {
+    let statusBar = {
+      backgroundColor: THEME_COLOR
+    }
+    const navigationBar = (
+        <NavigationBar 
+          title={'最热'}
+          statusBar={statusBar}
+          style={{backgroundColor: THEME_COLOR}}
+        />
+    );
+
     const MatetialTab = createAppContainer(createMaterialTopTabNavigator(this._generTab(), {
       tabBarOptions: {
         activeTintColor: 'white', // 设置TabBar选中状态下的标签和图标的颜色
@@ -51,6 +63,7 @@ export default class App extends Component<Props> {
     
     return (
       <View style={styles.containerWrapper}>
+        {navigationBar}
         <MatetialTab />
       </View>
     );
@@ -199,7 +212,6 @@ const PopularTabPage = connect(mapStateToProps, mapDispatchToProps)(PopularTab);
 const styles = StyleSheet.create({
   containerWrapper: {
     flex: 1,
-    marginTop: 30
   },
   container: {
     flex: 1,
@@ -210,20 +222,21 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   tabStyle: {
-    minWidth: 10,
-    padding: 0
+    // minWidth: 8, // minWidth会导致tabView初次加载闪烁
+    padding: 0,
   },
   indicatorStyle: {
     height: 1,
     backgroundColor: 'white',
   },
   tabsStyle: {
-    backgroundColor: '#678'
+    backgroundColor: '#678',
+    alignContent: 'center'
   },
   footerContainer: {
     alignItems: "center"
   },
   labelStyle: {
-    
+    fontSize: 13,
   }
 })

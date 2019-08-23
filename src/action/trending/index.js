@@ -3,52 +3,52 @@ import DataStore, { FLAG_STORAGE } from '../../expand/dao/DataStore';
 import { handleData } from '../ActionUtil';
 
 /**
- * 刷新popular数据
+ * 刷新Trending数据
  * @param {*} storeName 顶部tab名
  * @returns action
  */
-const refreshPopularAction = (storeName) => ({
-  type: actionTypes.POPULAR_REFRESH,
+const refreshTrendingAction = (storeName) => ({
+  type: actionTypes.TRENDING_REFRESH,
   storeName
 });
 
 
 /**
- * 刷新popular数据失败action
+ * 刷新Trending数据失败action
  * @param storeName 
  */
-const refreshPopularErrorAction = (storeName, error) => ({
-  type: actionTypes.POPULAR_REFRESH_FAIL,
+const refreshTrendingErrorAction = (storeName, error) => ({
+  type: actionTypes.TRENDING_REFRESH_FAIL,
   storeName,
   error
 });
 
 
-const loadPopularFail = (storeName, pageIndex, data) => ({
-  type: actionTypes.POPULAR_LOAD_MORE_SUCCESS,
+const loadTrendingFail = (storeName, pageIndex, data) => ({
+  type: actionTypes.TRENDING_LOAD_MORE_SUCCESS,
   storeName,
   pageIndex,
   projectModels: data
 })
 
 
-export const onRefreshPopular = (storeName, url, pageSize) => {
+export const onRefreshTrending = (storeName, url, pageSize) => {
   return (dispatch) => {
-    dispatch(refreshPopularAction(storeName));
+    dispatch(refreshTrendingAction(storeName));
     let dataStore = new DataStore();
 
-    dataStore.fetchData(url, FLAG_STORAGE.flag_popular)
+    dataStore.fetchData(url, FLAG_STORAGE.flag_trending)
       .then((data) => {
         // 派送请求成功数据
         console.log('首次请求成功数据');
         
-        handleData(actionTypes.POPULAR_REFRESH_SUCCESS, dispatch, storeName, pageSize, data);
-        // dispatch(handleDataAction(storeName, data));
+        handleData(actionTypes.TRENDING_REFRESH_SUCCESS, dispatch, storeName, pageSize, data);
+
       })
       .catch((error) => {
         console.log('派送请求失败');
         console.error(error);
-        dispatch(refreshPopularErrorAction(storeName, error));
+        dispatch(refreshTrendingErrorAction(storeName, error));
       })
   }
 }
@@ -61,7 +61,7 @@ export const onRefreshPopular = (storeName, url, pageSize) => {
  * @param dataArray 原始数据
  * @param callback 回调函数，可以通过回调函数向调用页面通信：比如异常信息的展示
  */
-export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray=[], callback) => {
+export const onLoadMoreTrending = (storeName, pageIndex, pageSize, dataArray=[], callback) => {
   return (dispatch) => {
     // 模拟网络请求
     setTimeout(() => {
@@ -71,9 +71,9 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray=[], 
           callback('no more data');
         }
         dispatch({
-          type: actionTypes.POPULAR_LOAD_MORE_FAIL,
+          type: actionTypes.TRENDING_LOAD_MORE_FAIL,
           storeName,
-          pageIndex: --pageIndex, // 总页数
+          pageIndex: --pageIndex, // 总x页数
           projectModels: dataArray
         })
       } else {
@@ -81,7 +81,7 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray=[], 
         console.log(max, dataArray.slice(0, max));
         
         dispatch({
-          type: actionTypes.POPULAR_LOAD_MORE_SUCCESS,
+          type: actionTypes.TRENDING_LOAD_MORE_SUCCESS,
           storeName,
           pageIndex,
           projectModels: dataArray.slice(0, max)

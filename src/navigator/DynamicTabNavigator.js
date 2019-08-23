@@ -12,19 +12,7 @@ import {BottomTabBar} from 'react-navigation-tabs';
 import { connect } from 'react-redux';
 
 const TABS = { // 配置页面路由
-  PopularPage: {
-    screen: PopularPage,
-    navigationOptions: {
-      tabBarLabel: '最热',
-      tabBarIcon: ({tintColor, focused}) => (
-        <MaterialIcons 
-          name={'whatshot'}
-          size={26}
-          style={{color: tintColor}}
-        />
-      )
-    }
-  },
+  
   TrendingPage: {
     screen: TrendingPage,
     navigationOptions: {
@@ -32,6 +20,19 @@ const TABS = { // 配置页面路由
       tabBarIcon: ({tintColor, focused}) => (
         <Ionicons 
           name={'md-trending-up'}
+          size={26}
+          style={{color: tintColor}}
+        />
+      )
+    }
+  },
+  PopularPage: {
+    screen: PopularPage,
+    navigationOptions: {
+      tabBarLabel: '最热',
+      tabBarIcon: ({tintColor, focused}) => (
+        <MaterialIcons 
+          name={'whatshot'}
           size={26}
           style={{color: tintColor}}
         />

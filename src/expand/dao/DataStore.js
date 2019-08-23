@@ -77,11 +77,13 @@ export default class DataStore {
           })
       } else {
         new Trending().fetchTrending(url)
-          .then((item) => {
+          .then((items) => {
+            console.log('Trending Item:' + items);
+            
             if (!items) {
               throw new Error('responseData is null');
             }
-            this.saveData(url, items);
+            this.saveStorageData(url, items);
             resolve(items);
           })
           .catch(error => {
@@ -134,3 +136,4 @@ export default class DataStore {
     return true;
   }
 }
+
