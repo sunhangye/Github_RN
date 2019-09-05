@@ -59,7 +59,7 @@ export default class DataStore {
   fetchNetData(url, flag) {
     return new Promise((resolve, reject) => {
       if (flag !== FLAG_STORAGE.flag_trending) {
-        fetch(url)
+        fetch(url, {mode: 'cors'})
           .then((response) => {
             // console.log('response', response)
             if (response.ok) {
@@ -78,7 +78,7 @@ export default class DataStore {
       } else {
         new Trending().fetchTrending(url)
           .then((items) => {
-            console.log('Trending Item:' + items);
+            // console.log('Trending Item:' + JSON.stringify(items));
             
             if (!items) {
               throw new Error('responseData is null');

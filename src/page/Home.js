@@ -16,7 +16,11 @@ class Home extends Component<Props> {
   componentWillUnmount() {
     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
   }
-  onBackPress() { // 处理 Android 中的物理返回键
+
+  /**
+   * 首页处理 Android 中的物理返回键
+   */
+  onBackPress() { 
     const {nav, dispatch} = this.props;
     
     if (nav.routers[1].index === 0) { //如果RootNavigator中的MainNavigator的index为0(为homePage)，则不处理返回事件
@@ -24,8 +28,9 @@ class Home extends Component<Props> {
     }
     dispatch(NavigationActions.back());
   }
+
+  
   render() {
-    
     NavigationUtil.navigation = this.props.navigation;
     return (
       <DynamicTabNavigator />

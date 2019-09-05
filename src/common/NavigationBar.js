@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, Text, ViewPropTypes, StatusBar, StyleSheet, Platform } from 'react-native';
-import DeviceInfo from 'react-native-device-info'
+import DeviceInfo from 'react-native-device-info';
 import {PropTypes} from 'prop-types';
 
 const STATUS_BAR_HEIGHT = DeviceInfo.isIPhoneX_deprecated ? 0 : 20; // 状态栏的高度
@@ -52,7 +52,7 @@ export default class NavigationBar extends Component {
     let content = this.props.hide ? null : 
         <View style={styles.navBar}>
           {this.getButtonElement(this.props.leftButton)}
-          <View style={styles.navBarTitleContainer}>
+          <View style={[styles.navBarTitleContainer, this.props.titleLayoutStyle]}>
             {titleView}
           </View>
           {this.getButtonElement(this.props.rightButton)}

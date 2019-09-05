@@ -4,7 +4,8 @@
 export default class NavigationUtil {
 
   /**
-   * 跳转到指定页面
+   * 传递参数并跳转到指定页面
+   * 在下一级页面通过 this.props.navigation.state.params.id接受传递的参数
    * @param {Object} params 
    * @param {String} page 
    */

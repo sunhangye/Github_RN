@@ -30,7 +30,7 @@ export default class TrendingItem extends Component {
     
     return (
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => this.props.onSelect()}
       >
         <View style={styles.cell_container}>
           <Text style={styles.title}>
