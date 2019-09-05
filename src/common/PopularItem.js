@@ -9,7 +9,7 @@ export default class PopularItem extends Component {
   _favariteIcon() {
     return (
       <TouchableOpacity 
-        onPress={() => {}}
+        onPress={() => this.props.onSelect()}
         underlayColor='transprent'
         style={{padding: 6}}
       >
@@ -29,7 +29,7 @@ export default class PopularItem extends Component {
     
     return (
       <TouchableOpacity
-        onPress={() => {}}
+        onPress={() => {this.props.onSelect()}}
       >
         <View style={styles.cell_container}>
           <Text style={styles.title}>

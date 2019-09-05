@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import actionCreators from '../action/index';
 import PopularItem from '../common/PopularItem';
 import NavigationBar from '../common/NavigationBar';
-
+import NavigationUtil from '../navigator/NavigationUtil'
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
 const THEME_COLOR = '#678';
@@ -108,7 +108,14 @@ class PopularTab extends Component {
   // 渲染列表item
   _renderItem(data) {
     const item = data.item;
-    return <PopularItem item={item}/>
+    return <PopularItem 
+              item={item} 
+              onSelect={() => {
+                NavigationUtil.goPage({
+                  projectModels: item
+                }, 'DetailPage')
+              }} 
+            />
   }
 
   // 渲染底部组件
