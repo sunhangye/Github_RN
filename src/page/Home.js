@@ -6,15 +6,26 @@ import NavigationUtil from '../navigator/NavigationUtil';
 import { BackHandler } from 'react-native';
 import {NavigationActions} from "react-navigation";
 import {connect} from 'react-redux';
+import BackPressComponent from '../common/BackPressComponent'
 
 type Props = {};
 class Home extends Component<Props> {
+  constructor(props) {
+    super(props);
+
+    /**
+     * 使用 backPress: this.onBackPress 会直接执行， 所以使用箭头函数 或者onBackPress使用箭头函数定义
+     */
+    this.backPress = new BackPressComponent({
+      backPress: this.onBackPress
+    });
+  }
   componentDidMount() {
-    BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
+    this.backPress.componentDidMount();
   }
   
   componentWillUnmount() {
-    BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
+    this.backPress.componentWillUnmount()
   }
 
   /**
@@ -29,7 +40,7 @@ class Home extends Component<Props> {
     dispatch(NavigationActions.back());
   }
 
-  
+
   render() {
     NavigationUtil.navigation = this.props.navigation;
     return (
