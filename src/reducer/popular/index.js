@@ -16,7 +16,6 @@ const defaultState = {};
  * }
  */
 export default (state = defaultState, action) => {
-  console.log(action.type);
   
   switch (action.type) {
     case actionTypes.POPULAR_REFRESH_SUCCESS:

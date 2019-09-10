@@ -7,14 +7,18 @@ import { connect } from 'react-redux';
 import actionCreators from '../action/index';
 import PopularItem from '../common/PopularItem';
 import NavigationBar from '../common/NavigationBar';
-import NavigationUtil from '../navigator/NavigationUtil'
+import NavigationUtil from '../navigator/NavigationUtil';
+import FavoriteDao from '../expand/dao/FavoriteDao';
+import { FLAG_STORAGE } from '../expand/dao/DataStore';
+import FavoriteUtil from '../utils/FavoriteUtil';
+
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
 const THEME_COLOR = '#678';
+const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_popular);
 
-type Props = {};
 
-export default class App extends Component<Props> {
+export default class App extends Component {
   constructor(props) {
     super(props);
     // this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
@@ -109,12 +113,17 @@ class PopularTab extends Component {
   _renderItem(data) {
     const item = data.item;
     return <PopularItem 
-              item={item} 
-              onSelect={() => {
+              projectModel={item} 
+              onSelect={(callback) => {
                 NavigationUtil.goPage({
-                  projectModels: item
+                  projectModel: item,
+                  flag: FLAG_STORAGE.flag_popular,
+                  callback
                 }, 'DetailPage')
               }} 
+              onFavorite={(item, isFavorite) => {
+                FavoriteUtil.onFavorite(favoriteDao, item, isFavorite, FLAG_STORAGE.flag_popular)
+              }}
             />
   }
 
@@ -138,12 +147,11 @@ class PopularTab extends Component {
     const url = this.getFetchUrl(this.storeName);
     const store = this._store();
     if (loadMore) { // 下拉加载更多 
-      console.log('--onLoadMorePopular--');
-      onLoadMorePopular(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, () => {
+      onLoadMorePopular(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, favoriteDao, () => {
         this.refs.toast.show('没有更多了');
       })
     } else { // 首次加载
-      onRefreshPopular(this.storeName, url, PAGE_SIZE);
+      onRefreshPopular(this.storeName, url, PAGE_SIZE, favoriteDao);
     }
   }
 
@@ -162,7 +170,7 @@ class PopularTab extends Component {
           style={{flex: 1}}
           data={store.projectModels}
           renderItem={data => this._renderItem(data)}
-          keyExtractor={item => "" + item.id}
+          keyExtractor={item => "" + item.item.id}
           refreshControl={
             <RefreshControl 
               title={'Loading'}
@@ -180,7 +188,6 @@ class PopularTab extends Component {
           onEndReachedThreshold={0.5}
           onEndReached={() => { // 下拉刷新
             setTimeout(() => { // 确保onMomentumScrollBegin执行
-              console.log('--onEndReached--');
               if (this.canLoadMore) {
                 this.loadData(true);
                 this.canLoadMore = false;
@@ -189,7 +196,6 @@ class PopularTab extends Component {
           }}
           onMomentumScrollBegin={() => {
             this.canLoadMore = true;
-            console.log('--onMomentumScrollBegin--');
             
           }}
         />
@@ -205,12 +211,12 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   // 加载列表数据
-  onRefreshPopular(storeName, url, pageSize) {
-    dispatch(actionCreators.onRefreshPopular(storeName, url, pageSize))
+  onRefreshPopular(storeName, url, pageSize, favoriteDao) {
+    dispatch(actionCreators.onRefreshPopular(storeName, url, pageSize, favoriteDao))
   },
   // 加载更多数据
-  onLoadMorePopular(storeName, pageIndex, pageSize, items, callback) {
-    dispatch(actionCreators.onLoadMorePopular(storeName, pageIndex, pageSize, items, callback))
+  onLoadMorePopular(storeName, pageIndex, pageSize, items, favoriteDao, callback) {
+    dispatch(actionCreators.onLoadMorePopular(storeName, pageIndex, pageSize, items, favoriteDao, callback))
   }
 });
 

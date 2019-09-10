@@ -2,35 +2,23 @@ import React, { Component } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import Htmlview from 'react-native-htmlview'
-
+import BaseItem from './BaseItem';
 /**
  * 自定义最热模块item
  */
-export default class TrendingItem extends Component {
-  _favariteIcon() {
-    return (
-      <TouchableOpacity 
-        onPress={() => {}}
-        underlayColor='transprent'
-        style={{padding: 6}}
-      >
-        <FontAwesome 
-          name={'star'}
-          size={26}
-          color={'red'}
-        />
-      </TouchableOpacity>
-    )
-  }
+export default class TrendingItem extends BaseItem {
+  
   render() {
-    const { item } = this.props;
+    const { projectModel } = this.props;
+    const { item } = projectModel;
+    
     if (!item) {
       return null
     }
     
     return (
       <TouchableOpacity
-        onPress={() => this.props.onSelect()}
+        onPress={() => this.onItemClick()}
       >
         <View style={styles.cell_container}>
           <Text style={styles.title}>

@@ -8,17 +8,18 @@ import TrendingItem from '../common/TrendingItem';
 import NavigationBar from '../common/NavigationBar';
 import TrendingDialog, { timeSpan } from '../common/TrendingDialog';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
 import NavigationUtil from '../navigator/NavigationUtil';
-
+import FavoriteDao from '../expand/dao/FavoriteDao';
+import { FLAG_STORAGE } from '../expand/dao/DataStore';
+import FavoriteUtil from '../utils/FavoriteUtil';
 
 const URL = 'https://github.com/trending/';
 const QUERY_STR = '?since=daily';
 const THEME_COLOR = '#678';
 const EVENT_TYPE_TIME_SPAN_CHANGE = 'EVENT_TYPE_TIME_SPAN_CHANGE';
-type Props = {};
+const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_trending);
 
-export default class App extends Component<Props> {
+export default class App extends Component {
   constructor(props) {
     super(props);
     // this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
@@ -125,7 +126,6 @@ class TrendingTab extends Component {
     const { tabLable, timeSpan } = this.props;
     this.storeName = tabLable;
     this.timeSpan = timeSpan;
-    console.log(this.props.timeSpan);
     
   }
 
@@ -171,12 +171,17 @@ class TrendingTab extends Component {
   _renderItem(data) {
     const item = data.item;
     return <TrendingItem 
-              item={item} 
-              onSelect={() => {
+              projectModel={item} 
+              onSelect={(callback) => {
                 NavigationUtil.goPage({
-                  projectModels: item
+                  projectModel: item,
+                  flag: FLAG_STORAGE.flag_trending,
+                  callback
                 }, 'DetailPage')
               }} 
+              onFavorite={(item, isFavorite) => {
+                FavoriteUtil.onFavorite(favoriteDao, item, isFavorite, FLAG_STORAGE.flag_trending)
+              }}
             />
   }
 
@@ -199,12 +204,11 @@ class TrendingTab extends Component {
     const url = this.getFetchUrl(this.storeName);
     const store = this._store();
     if (loadMore) { // 下拉加载更多 
-      console.log('--onLoadMoreTrending--');
-      onLoadMoreTrending(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, () => {
+      onLoadMoreTrending(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, favoriteDao, () => {
         this.refs.toast.show('没有更多了');
       })
     } else { // 首次加载
-      onRefreshTrending(this.storeName, url, PAGE_SIZE);
+      onRefreshTrending(this.storeName, url, PAGE_SIZE, favoriteDao);
     }
   }
 
@@ -223,7 +227,7 @@ class TrendingTab extends Component {
           style={{flex: 1}}
           data={store.projectModels}
           renderItem={data => this._renderItem(data)}
-          keyExtractor={item => "" + item.fullName}
+          keyExtractor={item => "" + item.item.fullName}
           refreshControl={
             <RefreshControl 
               title={'Loading'}
@@ -241,7 +245,6 @@ class TrendingTab extends Component {
           onEndReachedThreshold={0.1}
           onEndReached={() => { // 下拉刷新
             setTimeout(() => { // 确保onMomentumScrollBegin执行
-              console.log('--onEndReached--');
               if (this.canLoadMore) {
                 this.loadData(true);
                 this.canLoadMore = false;
@@ -266,12 +269,12 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   // 加载列表数据
-  onRefreshTrending(storeName, url, pageSize) {
-    dispatch(actionCreators.onRefreshTrending(storeName, url, pageSize))
+  onRefreshTrending(storeName, url, pageSize, favoriteDao) {
+    dispatch(actionCreators.onRefreshTrending(storeName, url, pageSize, favoriteDao))
   },
   // 加载更多数据
-  onLoadMoreTrending(storeName, pageIndex, pageSize, items, callback) {
-    dispatch(actionCreators.onLoadMoreTrending(storeName, pageIndex, pageSize, items, callback));
+  onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback) {
+    dispatch(actionCreators.onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback));
   }
 });
 

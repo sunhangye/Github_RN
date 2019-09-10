@@ -1,10 +1,13 @@
+/**
+ * 解决安卓后退按钮事件
+ */
 import React from 'react';
 import {PropTypes} from 'prop-types';
 import { BackHandler } from 'react-native'
 
 export default class BackPressComponent {
   constructor(props) {
-    super(props);
+
     this.props = props;
     this._handwareBackPress = this.onHandwareBackPress.bind(this);
     console.log('BackHandler :', BackHandler);
