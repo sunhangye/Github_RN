@@ -1,3 +1,6 @@
+/**
+ * 渲染公共小功能组件类
+ */
 import React from 'react';
 import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';

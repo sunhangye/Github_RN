@@ -1,3 +1,6 @@
+/**
+ * 收藏数据处理
+ */
 import { AsyncStorage } from 'react-native';
 
 const FAVORITE_KET_PREFIX = 'favorite_'
@@ -97,7 +100,8 @@ export default class FavoriteDao {
             stores.map((result, i, store) => {
               let key = store[i][0];
               let value = store[i][1];
-              items.push(value);
+              
+              items.push(JSON.parse(value));
             });
             resolve(items);
           })

@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import store from './src/store';
 
 console.disableYellowBox = true;
-console.warn('YellowBox is disabled.');
+// 控制台可查看http请求
 GLOBAL.XMLHttpRequest = GLOBAL.originalXMLHttpRequest || GLOBAL.XMLHttpRequest
 export default class App extends Component {
   render() {

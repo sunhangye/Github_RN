@@ -1,5 +1,7 @@
+/**
+ * 工具类
+ */
 export default class Utils {
-
   /**
    * 检查Item是否被收藏
    * @param {*} item 

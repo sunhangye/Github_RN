@@ -12,6 +12,8 @@ import NavigationUtil from '../navigator/NavigationUtil';
 import FavoriteDao from '../expand/dao/FavoriteDao';
 import { FLAG_STORAGE } from '../expand/dao/DataStore';
 import FavoriteUtil from '../utils/FavoriteUtil';
+import EventBus from 'react-native-event-bus';
+import EventTypes from '../utils/EventTypes';
 
 const URL = 'https://github.com/trending/';
 const QUERY_STR = '?since=daily';
@@ -19,7 +21,7 @@ const THEME_COLOR = '#678';
 const EVENT_TYPE_TIME_SPAN_CHANGE = 'EVENT_TYPE_TIME_SPAN_CHANGE';
 const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_trending);
 
-export default class App extends Component {
+export default class Trending extends Component {
   constructor(props) {
     super(props);
     // this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
@@ -126,7 +128,7 @@ class TrendingTab extends Component {
     const { tabLable, timeSpan } = this.props;
     this.storeName = tabLable;
     this.timeSpan = timeSpan;
-    
+    this.isFavoriteChange = false;
   }
 
   componentDidMount() {
@@ -137,12 +139,22 @@ class TrendingTab extends Component {
       });
       // this.loadData();
     })
+    EventBus.getInstance().addListener(EventTypes.FAVORITE_CHANGE_TRENDING, this.favoriteChangeListener = () => {
+      this.isFavoriteChanged = true;
+    });
+    EventBus.getInstance().addListener(EventTypes.BOTTOM_NAV_SELECT, this.bottomTabSelectListener = (data) => {
+      if (data.to === 1 && this.isFavoriteChanged) {
+        this.loadData(null, true);
+      }
+    })
   }
 
   componentWillUnmount() {
     if (this.timeSpanChangeListen) {
       this.timeSpanChangeListen.remove();
     }
+    EventBus.getInstance().removeListener(this.favoriteChangeListener);
+    EventBus.getInstance().removeListener(this.bottomTabSelectListener);
   }
   
   /**
@@ -207,6 +219,9 @@ class TrendingTab extends Component {
       onLoadMoreTrending(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, favoriteDao, () => {
         this.refs.toast.show('没有更多了');
       })
+    } else if (this.isFavoriteChange) {
+      onFlushTrendingFavorite(this.storeName, store.pageIndex, pageSize, store.items, favoriteDao);
+      this.isFavoriteChanged = false;
     } else { // 首次加载
       onRefreshTrending(this.storeName, url, PAGE_SIZE, favoriteDao);
     }
@@ -275,6 +290,10 @@ const mapDispatchToProps = (dispatch) => ({
   // 加载更多数据
   onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback) {
     dispatch(actionCreators.onLoadMoreTrending(storeName, pageIndex, pageSize, items, favoriteDao, callback));
+  },
+  // 更新收藏状态
+  onFlushTrendingFavorite(storeName, pageIndex, pageSize, items, favoriteDao) {
+    dispatch(actionCreators.onFlushTrendingFavorite(storeName, pageIndex, pageSize, items, favoriteDao))
   }
 });
 

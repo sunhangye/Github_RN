@@ -66,6 +66,15 @@ export default (state = defaultState, action) => {
           pageIndex: action.pageIndex,
         }
       }
+    case actionTypes.TRENDING_FLUSH_FAVORITE: // 更新收藏状态
+      return {
+        ...state, // ES7验证操作符 Object.assign
+        [action.storeName]: {
+          ...state[action.storeName],
+          pageIndex: action.pageIndex,
+          projectModels: action.projectModels,
+        }
+      }
     default:
       return state;
   }

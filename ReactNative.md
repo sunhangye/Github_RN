@@ -524,13 +524,26 @@ onBack() {
 ### 收藏模块问题
 * 封装favoriteDao及多数据存蓄
 * 使用 static-lifecyle-methods
+  * 静态函数 getDerivedStateFromProps
 * 封装和继承baseItem
 * 解决callback 解决Item跨组件更新
    详情页更新收藏后更新到列表页
     在PopularItem
 
 * 跨界面通信解决方案EventBus
-* 监听导航器的Tab切换
+  * 更新收藏页面收藏状态
+    1. 监听导航器的Tab切换 
+        onNavigationStateChange(preveState, nextState) { 
+          //发布tab切换事件 
+          EventBus.getInstance().fireEvent(EventTypes.BOTTOM_NAV_SELECT, {
+            from: preveState.index,
+            to: nextState.index
+          })
+        }
+    2. favoritePage: 订阅到tab切换事件 刷新加载数据
+  * 更新流行页面收藏状态 
+    1. 监听收藏页面收藏操作 发布收藏操作事件
+    2. 流行页面订阅到tab切换事件和收藏操作时间，只要切换到当前页面更新数据 从新走store流程(action->dispatch到store -> 更新reducer数据 -> state改变自动刷新页面)
 
 ### 父子组件间通讯
 

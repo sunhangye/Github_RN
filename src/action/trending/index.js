@@ -100,5 +100,21 @@ export const onLoadMoreTrending = (storeName, pageIndex, pageSize, dataArray = [
   }
 }
 
+export const onFlushTrendingFavorite = (storeName, pageIndex, pageSize, dataArray = [], favoriteDao) => {
+  return (dispatch) => {
+    let max = pageSize * pageIndex >= dataArray ? dataArray.length : pageSize * pageIndex;
+    let showItems = dataArray.slice(0, max);
+
+    _projectModels(showItems, favoriteDao, (projectModels) => {
+      dispatch({
+        type: actionTypes.TRENDING_FLUSH_FAVORITE,
+        storeName,
+        pageIndex,
+        projectModels
+      })
+    })
+  }
+}
+
 
 

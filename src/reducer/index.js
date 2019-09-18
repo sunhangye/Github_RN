@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import themeReducer from './theme';
 import popularReducer from './popular';
 import trendingReducer from './trending';
+import favoriteReducer from './favorite'
 import {
   rootCom,
   RootNavigator
@@ -22,7 +23,8 @@ const reducer = combineReducers({
   'nav': navReducer,
   'theme': themeReducer,
   'popular': popularReducer,
-  'trending': trendingReducer
+  'trending': trendingReducer,
+  'favorite': favoriteReducer,
 
 })
 

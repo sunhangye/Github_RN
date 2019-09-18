@@ -33,10 +33,12 @@ export default class TrendingItem extends BaseItem {
             }}
             value={item.description}
           />
-
+          <Text style={styles.description}>
+            {item.meta}
+          </Text>
           <View style={styles.row}>
             <View style={styles.row}>
-              <Text style={{marginRight: 2}}>Author：</Text>
+              <Text style={{marginRight: 2}}>Built by: </Text>
               {
                 item.contributors.map((item, index, arr) => (
                   <Image 
@@ -52,10 +54,6 @@ export default class TrendingItem extends BaseItem {
               }
               
             </View>
-            <View style={styles.starWrap}>
-               <Text style={{marginRight: 2}}>Start：</Text>
-               <Text>{item.starCount}</Text>
-            </View>
             {this._favariteIcon()}
           </View>
         </View>   
@@ -63,7 +61,6 @@ export default class TrendingItem extends BaseItem {
     )
   }
 }
-
 
 const styles = StyleSheet.create({
   cell_container: {

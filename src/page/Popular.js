@@ -11,14 +11,15 @@ import NavigationUtil from '../navigator/NavigationUtil';
 import FavoriteDao from '../expand/dao/FavoriteDao';
 import { FLAG_STORAGE } from '../expand/dao/DataStore';
 import FavoriteUtil from '../utils/FavoriteUtil';
+import EventBus from 'react-native-event-bus';
+import EventTypes from '../utils/EventTypes';
 
 const URL = 'https://api.github.com/search/repositories?q=';
 const QUERY_STR = '&sort=stars';
 const THEME_COLOR = '#678';
 const favoriteDao = new FavoriteDao(FLAG_STORAGE.flag_popular);
 
-
-export default class App extends Component {
+export default class Popular extends Component {
   constructor(props) {
     super(props);
     // this.tabNames = ['Java', 'Android', 'iOS', 'PHP', 'ReactNative'];
@@ -81,10 +82,28 @@ class PopularTab extends Component {
     super(props);
     const { tabLable } = this.props;
     this.storeName = tabLable;
+    this.isFavoriteState = false;
   }
 
   componentDidMount() {
     this.loadData(false);
+    // 订阅到收藏页面有收藏状态改变
+    EventBus.getInstance().addListener(EventTypes.FAVORITE_CHANGE_POPULAR, this.favoriteChangelistener = () => {
+      console.log('FAVORITE_CHANGE_POPULAR');
+      
+      this.isFavoriteChanged = true
+    })
+    EventBus.getInstance().addListener(EventTypes.BOTTOM_NAV_SELECT, this.navSelectlistener = (data) => {
+       if (data.to === 0 && this.isFavoriteChanged) {
+         console.log('BOTTOM_NAV_SELECT');
+         this.loadData(null, true)
+       }
+    })
+  }
+
+  componentWillUnmount() {
+    EventBus.getInstance().removeListener(this.favoriteChangelistener);
+    EventBus.getInstance().removeListener(this.navSelectlistener);
   }
 
   /**
@@ -142,14 +161,17 @@ class PopularTab extends Component {
    * 
    * @param {Boolean} loadMore true: 下拉加载更多；false: 首次加载
    */
-  loadData(loadMore) {
-    const { onRefreshPopular, onLoadMorePopular } = this.props;
+  loadData(loadMore, refreshFavorite) {
+    const { onRefreshPopular, onLoadMorePopular, onFlushPopularFavorite } = this.props;
     const url = this.getFetchUrl(this.storeName);
     const store = this._store();
     if (loadMore) { // 下拉加载更多 
       onLoadMorePopular(this.storeName, ++store.pageIndex, PAGE_SIZE, store.items, favoriteDao, () => {
         this.refs.toast.show('没有更多了');
       })
+    } else if (refreshFavorite) {
+      onFlushPopularFavorite(this.storeName, store.pageIndex, PAGE_SIZE, store.items, favoriteDao);
+      this.isFavoriteChanged = false;
     } else { // 首次加载
       onRefreshPopular(this.storeName, url, PAGE_SIZE, favoriteDao);
     }
@@ -217,6 +239,10 @@ const mapDispatchToProps = (dispatch) => ({
   // 加载更多数据
   onLoadMorePopular(storeName, pageIndex, pageSize, items, favoriteDao, callback) {
     dispatch(actionCreators.onLoadMorePopular(storeName, pageIndex, pageSize, items, favoriteDao, callback))
+  },
+  // 更新收藏状态
+  onFlushPopularFavorite(storeName, pageIndex, pageSize, items, favoriteDao) {
+    dispatch(actionCreators.onFlushPopularFavorite(storeName, pageIndex, pageSize, items, favoriteDao))
   }
 });
 

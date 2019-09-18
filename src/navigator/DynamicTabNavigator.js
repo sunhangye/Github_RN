@@ -10,8 +10,10 @@ import MyPage from '../page/My';
 import PopularPage from '../page/Popular';
 import {BottomTabBar} from 'react-navigation-tabs';
 import { connect } from 'react-redux';
+import EventBus from 'react-native-event-bus';
+import EventTypes from '../utils/EventTypes';
 
-const TABS = { // 配置页面路由
+const TabsRouter = { // 配置页面路由
   PopularPage: {
     screen: PopularPage,
     navigationOptions: {
@@ -78,7 +80,7 @@ class DynamicTabNavigator extends Component {
       return this.tabs;
     }
     // 将配置文件导出
-    const { PopularPage, TrendingPage, FavoritePage, MyPage } = TABS;
+    const { PopularPage, TrendingPage, FavoritePage, MyPage } = TabsRouter;
     // 配置需要的路由文件
     const tabs = { PopularPage, TrendingPage, FavoritePage, MyPage };
     // 动态设置底部标题
@@ -93,7 +95,15 @@ class DynamicTabNavigator extends Component {
   render() {
     const Tab = this._tabNavigator();
     return (
-      <Tab />
+      <Tab
+        onNavigationStateChange={(preveState, nextState, action) => {
+          // console.log(preveState, nextState, action);
+         EventBus.getInstance().fireEvent(EventTypes.BOTTOM_NAV_SELECT, {
+            from: preveState.index,
+            to: nextState.index
+          })
+        }}
+      />
     )
   }
 }

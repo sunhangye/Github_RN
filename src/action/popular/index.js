@@ -12,7 +12,6 @@ const refreshPopularAction = (storeName) => ({
   storeName
 });
 
-
 /**
  * 刷新popular数据失败action
  * @param storeName 
@@ -22,7 +21,6 @@ const refreshPopularErrorAction = (storeName, error) => ({
   storeName,
   error
 });
-
 
 const loadPopularFail = (storeName, pageIndex, data) => ({
   type: actionTypes.POPULAR_LOAD_MORE_SUCCESS,
@@ -61,7 +59,7 @@ export const onRefreshPopular = (storeName, url, pageSize, favoriteDao) => {
 }
 
 /**
- * 
+ * 上拉加载更多数据
  * @param  storeName 标签名
  * @param pageIndex 第几页
  * @param pageSize 每页展示条数
@@ -89,7 +87,7 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray = []
         let max = pageSize * pageIndex >= dataArray ? dataArray.length : pageSize * pageIndex;
         let showItems = dataArray.slice(0, max);
 
-        _projectModels(showItems, favoriteDao, (projectModels) => {
+        _projectModels(showItems, favoriteDao, (projectModels) => { 
           dispatch({
             type: actionTypes.POPULAR_LOAD_MORE_SUCCESS,
             storeName,
@@ -103,5 +101,18 @@ export const onLoadMorePopular = (storeName, pageIndex, pageSize, dataArray = []
   }
 }
 
+export const onFlushPopularFavorite = (storeName, pageIndex, pageSize, dataArray=[], favoriteDao) => {
+  return (dispatch) => {
+    let max = pageSize * pageIndex >= dataArray ? dataArray.length : pageSize * pageIndex;
+    let showItems = dataArray.slice(0, max);
 
-
+    _projectModels(showItems, favoriteDao, (projectModels) => {
+      dispatch({
+        type: actionTypes.POPULAR_FLUSH_FAVORITE,
+        storeName,
+        pageIndex,
+        projectModels
+      })
+    })
+  }
+}
